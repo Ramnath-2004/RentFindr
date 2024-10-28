@@ -161,5 +161,6 @@ def send_email():
         return jsonify({'message': 'Error sending email'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)  # Use the correct port as specified by Render
+
 
