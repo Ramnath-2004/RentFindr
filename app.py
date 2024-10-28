@@ -6,13 +6,17 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import os
 from dotenv import load_dotenv
+import logging
 
 # Load environment variables
 load_dotenv()
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-CORS(app, resources={r"/*": {"origins": "*"}})
+# CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # Flask-Mail configuration for email sending
@@ -104,9 +108,6 @@ def nav():
 def footer():
     return render_template('footer.html')
 
-
-
-
 @app.route('/predict', methods=['POST'])
 def predict():
     sqft = float(request.form['sqft'])
@@ -161,6 +162,4 @@ def send_email():
         return jsonify({'message': 'Error sending email'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)  # Use the correct port as specified by Render
-
-
+    app.run(debug=True)
