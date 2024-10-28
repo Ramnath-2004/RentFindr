@@ -8,4 +8,3 @@ scikit-learn==1.2.2
 python-dotenv==1.0.0
 Werkzeug==2.2.3
 
-app.run(host='0.0.0.0', port=8000, debug=True)  # Use the correct port as specified by Render
