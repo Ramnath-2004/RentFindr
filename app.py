@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-# CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # Flask-Mail configuration for email sending
@@ -25,6 +25,8 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
+app.config['MAIL_DEBUG'] = True
+
 mail = Mail(app)
 
 # MongoDB configuration
@@ -108,6 +110,7 @@ def nav():
 def footer():
     return render_template('footer.html')
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     sqft = float(request.form['sqft'])
@@ -162,4 +165,5 @@ def send_email():
         return jsonify({'message': 'Error sending email'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 8000))
+    app.run(host='0.0.0.0', port=port, debug=True)

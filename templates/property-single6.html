@@ -916,7 +916,7 @@ Immerse yourself in a peaceful lifestyle, surrounded by lush greenery and a frie
                     const loadingElement = form.querySelector('.loading');
                     const errorElement = form.querySelector('.error-message');
                     const sentElement = form.querySelector('.sent-message');
-                    
+                    const baseUrl = window.location.origin;
                     // Show loading
                     loadingElement.classList.add('d-block');
                     errorElement.classList.remove('d-block');
@@ -930,7 +930,7 @@ Immerse yourself in a peaceful lifestyle, surrounded by lush greenery and a frie
                     });
                     
                     // Make fetch API call to the Flask server
-                    fetch('http://127.0.0.1:5000/send', {  // Update URL to match Flask server address
+                    fetch(`${baseUrl}/send`, {  // Update URL to match Flask server address
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
