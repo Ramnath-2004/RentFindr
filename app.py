@@ -32,7 +32,7 @@ mail = Mail(app)
 
 # MongoDB configuration
 client = MongoClient(os.getenv('MONGODB_URI'))
-db = client['Gokuldb']  # Database name
+db = client['RamDB']  # Database name
 
 # Load the dataset and preprocess it
 data = pd.read_csv("Districts.csv")
