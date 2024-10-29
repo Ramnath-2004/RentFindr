@@ -38,12 +38,17 @@
 
         <!--Main CSS File -->
         <link href="/static/assets/css/style.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+
+                       <!-- Include Font Awesome for icons in your <head> section -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     </head>
 
     <body>
-       <!-- ******* Property Search div ******* -->
-       <div class="click-closed"></div>
+        <!-- ******* Property Search div ******* -->
+        <div class="click-closed"></div>
        <!--/ Form Search Star /-->
 <div class="box-collapse" style="background-color: white">
     <div class="title-box-d">
@@ -142,6 +147,7 @@
     </div>
 </div>
 <style>
+
     .modal {
         position: fixed;
         z-index: 1000;
@@ -276,60 +282,63 @@
 
 
 </script>
-
-
-        <!-- ******* Header/Navbar ******* -->
-        <nav
-            class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top"
-            style="background-color: white"
+<!-- ******* Header/Navbar ******* -->
+<nav class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top" style="background-color: white;">
+    <div class="container">
+        <button
+            class="navbar-toggler collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarDefault"
+            aria-controls="navbarDefault"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
         >
-            <div class="container">
-                <button
-                    class="navbar-toggler collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarDefault"
-                    aria-controls="navbarDefault"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <a class="navbar-brand text-brand" href="/"
-                    >Rent<span class="color-b">Findr</span></a
-                >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <a class="navbar-brand text-brand" href="/">Rent<span class="color-b">Findr</span></a>
 
-                <div
-                    class="navbar-collapse collapse justify-content-center"
-                    id="navbarDefault"
-                >
-                    <ul class="navbar-nav">
-
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/"
-                                >Home</a
-                            >
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="about.html">About</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="property-grid.html"
-                                >Property</a
-                            >
-                        </li>                     
-                        <li class="nav-item">
-                            <a class="nav-link" href="contact.html">Contact</a>
-                        </li>
-
+        <div class="collapse navbar-collapse justify-content-center" id="navbarDefault">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link " href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about.html">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/property-grid.html">Property</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/contact.html">Contact</a>
+                </li>
+                {% if user_logged_in %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                        <li><span class="dropdown-item">Welcome, {{ username }}!</span></li>
+                        <li><span class="dropdown-item">Looking For: {{ looking_for }}</span></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
                     </ul>
-                </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link " href="/login.html">Login</a>
+                </li>
+                {% endif %}
 
-                <button
+                
+            </ul>
+            
+            
+        </div>
+        
+        <button
                     type="button"
                     class="btn btn-b-n navbar-toggle-box navbar-toggle-box-collapse"
                     data-bs-toggle="collapse"
@@ -337,11 +346,12 @@
                     >
                     <img src="/static/assets/img/icon.png" alt="Search Icon">
                 </button>
+    </div>
+</nav>
 
-            </div>
-        </nav>
-        <!-- End Header/Navbar -->
 
+
+    
         <main id="main">
             <!-- ======= Intro Single ======= -->
             <section class="intro-single">
@@ -364,7 +374,7 @@
                             >
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item">
-                                        <a href="index.html">Home</a>
+                                        <a href="{{ url_for('index') }}">Home</a>
                                     </li>
                                     <li
                                         class="breadcrumb-item active"
@@ -379,9 +389,20 @@
                 </div>
             </section>
             <!-- End Intro Single-->
+            <style>
+                .property-grid-white a {
+    color: white !important; /* Set link color to white */
+    text-decoration: none; /* Optional: Remove underline */
+}
 
+.property-grid-white a:hover {
+    color: lightgray !important; /* Optional: Change color on hover */
+    
+}
+
+            </style>
             <!-- ======= Property Grid ======= -->
-            <section class="property-grid grid">
+            <section class="property-grid grid property-grid-white">
                 <div class="container">
                     <div class="row">
                         
@@ -937,7 +958,7 @@
                 </div>
             </div>
         </section>
-        <footer>
+        <footer class="footer-custom">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -952,7 +973,6 @@
                                 <li class="list-inline-item">
                                     <a href="property-grid.html">Property</a>
                                 </li>
-                                
                                 <li class="list-inline-item">
                                     <a href="contact.html">Contact</a>
                                 </li>
@@ -960,73 +980,40 @@
                         </nav>
                         <div class="socials-a">
                             <ul class="list-inline">
-                                <li
-                                    class="list-inline-item"
-                                >
-                                    <a
-                                        href="https://www.facebook.com/snsinstitutions/photos/?_rdr"
-                                        class="link-one"
-                                    >
-                                        <i
-                                            class="bi bi-facebook"
-                                            aria-hidden="true"
-                                        ></i>
+                                <li class="list-inline-item">
+                                    <a href="https://www.facebook.com/snsinstitutions/photos/?_rdr" class="link-one">
+                                        <i class="bi bi-facebook" aria-hidden="true"></i>
                                     </a>
                                 </li>
-                                <li
-                                    class="list-inline-item"
-                                >
-                                    <a
-                                        href="https://x.com/snsinstitutions"
-                                        class="link-one"
-                                    >
-                                        <i
-                                            class="bi bi-twitter"
-                                            aria-hidden="true"
-                                        ></i>
+                                <li class="list-inline-item">
+                                    <a href="https://x.com/snsinstitutions" class="link-one">
+                                        <i class="bi bi-twitter" aria-hidden="true"></i>
                                     </a>
                                 </li>
-                                <li
-                                    class="list-inline-item"
-                                >
-                                    <a
-                                        href="https://www.instagram.com/snsinstitutions/?hl=en"
-                                        class="link-one"
-                                    >
-                                        <i
-                                            class="bi bi-instagram"
-                                            aria-hidden="true"
-                                        ></i>
+                                <li class="list-inline-item">
+                                    <a href="https://www.instagram.com/snsinstitutions/?hl=en" class="link-one">
+                                        <i class="bi bi-instagram" aria-hidden="true"></i>
                                     </a>
                                 </li>
-                                <li
-                                    class="list-inline-item"
-                                >
-                                    <a
-                                        href="https://www.linkedin.com/school/snsinstitutions/posts/?feedView=all"
-                                        class="link-one"
-                                    >
-                                        <i
-                                            class="bi bi-linkedin"
-                                            aria-hidden="true"
-                                        ></i>
+                                <li class="list-inline-item">
+                                    <a href="https://www.linkedin.com/school/snsinstitutions/posts/?feedView=all" class="link-one">
+                                        <i class="bi bi-linkedin" aria-hidden="true"></i>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         <div class="copyright-footer">
                             <p class="copyright color-text-a">
-                                &copy; Copyright
-                                <span class="color-a">RentFindr</span> All Rights
-                                Reserved.
+                                &copy; Copyright <span class="color-a">RentFindr</span> All Rights Reserved.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </footer>
-        <!-- End  Footer -->
-
+        <!-- End Footer -->
+        
+        
         <div id="preloader"></div>
         <a
             href="#"

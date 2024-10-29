@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
+from flask import Flask, redirect, render_template, session , request, jsonify, send_file, send_from_directory, url_for
 from flask_cors import CORS
 from flask_mail import Mail, Message
 from pymongo import MongoClient
@@ -15,6 +15,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Set your secret key for session management
 CORS(app)  # Enable CORS for all routes
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -48,19 +49,38 @@ rf_model.fit(X, y)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('index.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)  # Remove user from session
+    return redirect('/')
+
 
 @app.route('/about.html')
 def about():
-    return render_template('about.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('about.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-grid.html')
 def property():
-    return render_template('property-grid.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-grid.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/contact.html')
 def contact():
-    return render_template('contact.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('contact.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
+
 
 @app.route('/login.html')
 def login():
@@ -72,31 +92,52 @@ def signup():
 
 @app.route('/property-single1.html')
 def property_single1():
-    return render_template('property-single1.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single1.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single2.html')
 def property_single2():
-    return render_template('property-single2.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single2.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single3.html')
 def property_single3():
-    return render_template('property-single3.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single3.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single4.html')
 def property_single4():
-    return render_template('property-single4.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single4.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single5.html')
 def property_single5():
-    return render_template('property-single5.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single5.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single6.html')
 def property_single6():
-    return render_template('property-single6.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single6.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/property-single7.html')
 def property_single7():
-    return render_template('property-single7.html')
+    user_logged_in = 'username' in session  # Check if the user is logged in
+    username = session.get('username')  # Get the username from the session
+    looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
+    return render_template('property-single7.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
 @app.route('/test_css')
 def test_css():
@@ -163,6 +204,72 @@ def send_email():
     except Exception as e:
         print('Error sending email:', e)
         return jsonify({'message': 'Error sending email'}), 500
+    
+
+    # Signup route
+@app.route('/signup', methods=['POST'])
+def signup_user():
+    data = request.get_json()  # If using JSON for form submission
+
+    # Get the form data
+    full_name = data.get("fullName")
+    email = data.get("email")
+    
+    password = data.get("password")
+    confirm_password = data.get("confirmPassword")
+    looking_for = data.get("lookingFor")  # Collect looking for option
+
+    # Check if passwords match
+    if password != confirm_password:
+        return jsonify({"message": "Passwords do not match"}), 400
+
+    try:
+        # Insert new user data into the 'users' collection
+        users_collection = db["users"]
+        new_user = {
+            "fullName": full_name,
+            "email": email,
+            "password": password,
+            "lookingFor": looking_for  # Store 'Looking For' in camelCase
+        }
+        users_collection.insert_one(new_user)
+
+        # Optionally, you can save the user's info in the session
+        session['username'] = full_name
+        session['looking_for'] = looking_for  # Store 'Looking For' in session
+
+        return jsonify({"message": "User registered successfully"}), 201
+    except Exception as error:
+        logging.error("Error registering user: %s", error)
+        return jsonify({"message": "Error registering user"}), 500
+
+
+# Login route
+@app.route('/login', methods=['POST'])
+def login_user():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    try:
+        users_collection = db["users"]
+        user = users_collection.find_one({"email": email})
+
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        if user["password"] != password:
+            return jsonify({"message": "Incorrect password"}), 401
+
+        # Set session after successful login
+        session['username'] = user.get('fullName')  # or user.get('email'), depending on your preference
+
+        # Send a success response
+        return jsonify({"message": "Login successful"}), 200
+    except Exception as error:
+        logging.error("Error logging in: %s", error)
+        return jsonify({"message": "Error logging in"}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
