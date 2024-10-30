@@ -7,6 +7,18 @@ from sklearn.ensemble import RandomForestRegressor
 import os
 from dotenv import load_dotenv
 import logging
+from werkzeug.utils import secure_filename
+
+import os
+
+
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif' , 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # Load environment variables
 load_dotenv()
@@ -18,6 +30,10 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Set your secret key for session management
 CORS(app)  # Enable CORS for all routes
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Flask-Mail configuration for email sending
@@ -33,6 +49,7 @@ mail = Mail(app)
 # MongoDB configuration
 client = MongoClient(os.getenv('MONGODB_URI'))
 db = client['RamDB']  # Database name
+users_collection = db['users'] 
 
 # Load the dataset and preprocess it
 data = pd.read_csv("Districts.csv")
@@ -46,6 +63,16 @@ y = data_encoded["Price"]
 # Train the Random Forest model
 rf_model = RandomForestRegressor(n_estimators=700, max_depth=10, min_samples_split=5, min_samples_leaf=2, random_state=42)  
 rf_model.fit(X, y)
+
+
+
+# Set the path for the uploads folder inside static
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+
+# Ensure the uploads folder exists
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 @app.route('/')
 def index():
@@ -81,6 +108,99 @@ def contact():
     looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
     return render_template('contact.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
+@app.route('/dashboard')
+def dashboard():
+    if 'username' not in session:
+        return redirect('/login')  # Redirect to login if user is not logged in
+
+    username = session.get('username')
+    looking_for = session.get('looking_for')
+    
+    # Retrieve user details from the database
+    user = users_collection.find_one({"fullName": username})
+
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    
+    print(f"Profile Picture: {user.get('profilePicture')}")
+
+    # Pass the user's email and profile picture to the template
+    return render_template('dashboard.html', 
+                           username=username, 
+                           user_email=user.get('email'), 
+                           looking_for=looking_for, 
+                           profile_picture=user.get('profilePicture'))
+
+
+
+@app.route('/update-email', methods=['POST'])
+def update_email():
+    if 'username' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    new_email = data.get("email")
+    
+    # Update the user's email in the database
+    users_collection.update_one({"fullName": session['username']}, {"$set": {"email": new_email}})
+    
+    return jsonify({"message": "Email updated successfully"}), 200
+
+
+@app.route('/update-password', methods=['POST'])
+def update_password():
+    if 'username' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    new_password = data.get("password")
+    
+    # Update the user's password in the database
+    users_collection.update_one({"fullName": session['username']}, {"$set": {"password": new_password}})
+    
+    return jsonify({"message": "Password updated successfully"}), 200
+
+
+@app.route('/delete-account', methods=['DELETE'])
+def delete_account():
+    if 'username' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+
+    # Delete the user from the database
+    users_collection.delete_one({"fullName": session['username']})
+
+    # Clear the session
+    session.clear()
+    
+    return jsonify({"message": "Account deleted successfully"}), 200
+
+@app.route('/update-username', methods=['POST'])
+def update_username():
+    if 'username' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+
+    data = request.get_json()
+    new_username = data.get("username")
+
+    # Validate new_username
+    if not new_username:
+        return jsonify({"message": "New username is required"}), 400
+
+    # Update the user's username in the database
+    result = users_collection.update_one(
+        {"fullName": session['username']},
+        {"$set": {"fullName": new_username}}
+    )
+
+    if result.modified_count == 0:
+        return jsonify({"message": "No changes made, username may be the same."}), 400
+
+    # Update the session with the new username
+    session['username'] = new_username
+
+    return jsonify({"message": "Username updated successfully"}), 200
+
+
 
 @app.route('/login.html')
 def login():
@@ -89,6 +209,10 @@ def login():
 @app.route('/signup.html')
 def signup():
     return render_template('signup.html')
+
+
+
+
 
 @app.route('/property-single1.html')
 def property_single1():
@@ -205,43 +329,65 @@ def send_email():
         print('Error sending email:', e)
         return jsonify({'message': 'Error sending email'}), 500
     
-
-    # Signup route
 @app.route('/signup', methods=['POST'])
 def signup_user():
-    data = request.get_json()  # If using JSON for form submission
+    data = request.form  # Correctly accessing form data
+    profile_picture = request.files.get("profilePicture")  # Get the uploaded file
+    logging.debug("Received data: %s", data)
 
-    # Get the form data
+    # Retrieve each value from the data
     full_name = data.get("fullName")
     email = data.get("email")
-    
     password = data.get("password")
     confirm_password = data.get("confirmPassword")
     looking_for = data.get("lookingFor")  # Collect looking for option
+    profile_picture = request.files.get("profilePicture")
 
-    # Check if passwords match
+    logging.debug(f"Full Name: {full_name}, Email: {email}, Looking For: {looking_for}, Profile Picture: {profile_picture}")
+
+    # Additional checks
+    if not email:
+        return jsonify({"message": "Email is required"}), 400
+
     if password != confirm_password:
         return jsonify({"message": "Passwords do not match"}), 400
+
+    if profile_picture and allowed_file(profile_picture.filename):
+        filename = secure_filename(profile_picture.filename)
+        profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    else:
+        filename = None  # Handle the case when the profile picture is not provided
 
     try:
         # Insert new user data into the 'users' collection
         users_collection = db["users"]
+
+        # Check if email already exists
+        existing_user = users_collection.find_one({"email": email})
+        if existing_user:
+            return jsonify({"message": "Email already registered"}), 400
+
         new_user = {
             "fullName": full_name,
             "email": email,
             "password": password,
-            "lookingFor": looking_for  # Store 'Looking For' in camelCase
+            "lookingFor": looking_for,
+            "profilePicture": filename  # Store filename or path in your database
         }
+
+        logging.debug(f"New User: {new_user}")  # Log the new user details
         users_collection.insert_one(new_user)
 
-        # Optionally, you can save the user's info in the session
+        # Save the user's info in the session
         session['username'] = full_name
-        session['looking_for'] = looking_for  # Store 'Looking For' in session
+        session['looking_for'] = looking_for
 
         return jsonify({"message": "User registered successfully"}), 201
     except Exception as error:
         logging.error("Error registering user: %s", error)
         return jsonify({"message": "Error registering user"}), 500
+
+
 
 
 # Login route

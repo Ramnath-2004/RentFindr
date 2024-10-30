@@ -149,12 +149,12 @@
         <div class="container">
             <div class="form-container">
                 <h2><i class="fas fa-user-plus"></i> Signup</h2>
-                <form id="signup-form">
+                <form id="signup-form" enctype="multipart/form-data" method="POST" action="/signup">
                     <input type="text" name="fullName" placeholder="Full Name" required>
                     <input type="email" name="email" placeholder="Email" required>
                     <input type="password" name="password" placeholder="Password" required>
                     <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-    
+                    
                     <div class="dropdown-style">
                         <select name="lookingFor" id="lookingFor" required>
                             <option value="" disabled selected>Looking for...</option>
@@ -163,53 +163,47 @@
                             <option value="Villa">Villa</option>
                         </select>
                     </div>
-    
+                
+                    <input type="file" name="profilePicture" > <!-- Make sure this input is included -->
+                    <p>Uploading Image is Not Mandatory!</p>
                     <button type="submit" class="signup-btn">Sign Up</button>
                     <p>Already have an account? <a href="./login.html" class="login-link">Login</a></p>
+                    
                     <div id="message-container"></div>
                 </form>
-            </div>
+            </div>                
         </div>
     
 
-    <script>
-    document.getElementById('signup-form').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Prevent default form submission
-
-        const formData = new FormData(this);
-        const data = {
-            fullName: formData.get('fullName'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            confirmPassword: formData.get('confirmPassword'),
-            lookingFor: formData.get('lookingFor') // Collect "Looking for" option
-        };
-
-        try {
-            const response = await fetch('/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' // Ensure JSON content type
-                },
-                body: JSON.stringify(data) // Send data as JSON
+        <script>
+            document.getElementById('signup-form').addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent default form submission
+        
+                const formData = new FormData(this); // Collect all form data, including files
+        
+                try {
+                    const response = await fetch('/signup', {
+                        method: 'POST',
+                        body: formData // Send formData directly
+                    });
+        
+                    const result = await response.json();
+                    const messageContainer = document.getElementById('message-container');
+                    messageContainer.textContent = result.message;
+        
+                    if (response.ok) {
+                        messageContainer.className = 'message-success'; // Add success class
+                        messageContainer.style.display = 'block'; // Show the message
+                        setTimeout(() => window.location.href = '/login.html', 1500);
+                    } else {
+                        messageContainer.className = 'message-error'; // Add error class
+                        messageContainer.style.display = 'block'; // Show the message
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
             });
-
-            const result = await response.json();
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.textContent = result.message;
-
-            if (response.ok) {
-                messageContainer.className = 'message-success'; // Add success class
-                messageContainer.style.display = 'block'; // Show the message
-                setTimeout(() => window.location.href = '/login.html', 1500);
-            } else {
-                messageContainer.className = 'message-error'; // Add error class
-                messageContainer.style.display = 'block'; // Show the message
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-    </script>
+        </script>
+        
 </body>
 </html>
