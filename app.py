@@ -44,7 +44,7 @@ def resize_image(image_path):
     with Image.open(image_path) as img:
         target_width = 600  # Example width
         target_height = 800  # Example height
-        img = img.resize((target_width, target_height), Image.Resampling.LANCZOS)
+        img = img.resize((target_width, target_height), Image.LANCZOS)
         img.save(image_path)
 
 
