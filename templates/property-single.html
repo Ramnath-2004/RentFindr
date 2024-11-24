@@ -570,8 +570,11 @@
 
                             <div class="col-md-12 col-lg-4">
                                 <div class="property-contact">
-                                    <form action="http://localhost:3000/send" method="post" role="form"
+                                    <form action="{{ url_for('send_email') }}" method="post" role="form"
                                         class="php-email-form">
+                                        <!-- Add a hidden input field to store agent email on the property page -->
+                                        <input type="hidden" id="agentEmail" name="agentEmail"
+                                            value="{{ agent_email }}">
 
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
@@ -790,62 +793,70 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const form = document.querySelector('.php-email-form');
+    const form = document.querySelector('.php-email-form');
+    
+    // Assuming you have the agent's email available in a variable called agentEmail
+    const agentEmail = document.querySelector('#agentEmailField').value;  // Or dynamically fetch it
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-                // Get the form elements
-                const loadingElement = form.querySelector('.loading');
-                const errorElement = form.querySelector('.error-message');
-                const sentElement = form.querySelector('.sent-message');
-                const baseUrl = window.location.origin;
-                // Show loading
-                loadingElement.classList.add('d-block');
-                errorElement.classList.remove('d-block');
-                sentElement.classList.remove('d-block');
+        // Get the form elements
+        const loadingElement = form.querySelector('.loading');
+        const errorElement = form.querySelector('.error-message');
+        const sentElement = form.querySelector('.sent-message');
+        const baseUrl = window.location.origin;
 
-                // Get form data
-                const formData = new FormData(form);
-                const formObject = {};
-                formData.forEach((value, key) => {
-                    formObject[key] = value;
-                });
+        // Show loading
+        loadingElement.classList.add('d-block');
+        errorElement.classList.remove('d-block');
+        sentElement.classList.remove('d-block');
 
-                // Make fetch API call to the Flask server
-                fetch(`${baseUrl}/send`, {  // Update URL to match Flask server address
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formObject)
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Hide loading
-                        loadingElement.classList.remove('d-block');
+        // Get form data
+        const formData = new FormData(form);
+        formData.append('agentEmail', agentEmail); // Add the agent email to the form data
 
-                        // Show success message
-                        sentElement.classList.add('d-block');
-
-                        // Reset form
-                        form.reset();
-                    })
-                    .catch(error => {
-                        // Hide loading
-                        loadingElement.classList.remove('d-block');
-
-                        // Show error message
-                        errorElement.textContent = error.message || 'Something went wrong! Please try again.';
-                        errorElement.classList.add('d-block');
-                    });
-            });
+        const formObject = {};
+        formData.forEach((value, key) => {
+            formObject[key] = value;
         });
+
+        // Make fetch API call to the Flask server
+        fetch(`${baseUrl}/send`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formObject)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading
+                loadingElement.classList.remove('d-block');
+
+                // Show success message
+                sentElement.classList.add('d-block');
+
+                // Reset form
+                form.reset();
+            })
+            .catch(error => {
+                // Hide loading
+                loadingElement.classList.remove('d-block');
+
+                // Show error message
+                errorElement.textContent = error.message || 'Something went wrong! Please try again.';
+                errorElement.classList.add('d-block');
+            });
+    });
+});
+
+
     </script>
 </body>
 

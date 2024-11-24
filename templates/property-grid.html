@@ -979,10 +979,7 @@
                                 </div>
                             </div>
                         </div>
-                        {% if session.get('role') == 'Seller' and session.get('email') == property['seller_email'] %}
-                        <button onclick="deleteProperty('{{ property._id }}')" class="delete-btn">Delete
-                            Property</button>
-                        {% endif %}
+                        
                     </div>
                     {% endfor %}
                 </div>
@@ -1396,41 +1393,8 @@
     </script>
 
 
-
-
-
-
-
-
-
-
-
     <script>
-        function deleteProperty(propertyId) {
-            console.log(`Deleting property with ID: ${propertyId}`);
-
-            fetch(`/delete-property/${propertyId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Response:', data);
-                    if (data.message) {
-                        showMessage(data.message, false);  // Show success message
-                        setTimeout(() => {
-                            window.location.href = window.location.href;  // Reload the page
-                        }, 2000);  // Wait for 2 seconds before reloading
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    showMessage("An error occurred. Please try again.", true);
-                });
-        }
-
+        
         function showMessage(message, isError) {
             const messageDiv = document.getElementById("message-container");
             if (messageDiv) {

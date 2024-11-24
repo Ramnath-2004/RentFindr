@@ -4,43 +4,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="../static/assets/css/styles.css" rel="stylesheet" />
+    <title>RentFindr Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="static/assets/img/logo.png" rel="icon" />
     <link href="static/assets/img/logo.png" rel="apple-touch-icon" />
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #0ea5e9;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --hover-bg: #f1f5f9;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .dashboard-box {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .dashboard-content {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        .welcome {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover;
+            opacity: 0.1;
+        }
+
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin: 0 0 1.5rem;
+            position: relative;
+        }
+
+        .profile-image-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        #profileImage {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .settings-form {
+            background: var(--hover-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-form h3 {
+            margin: 0 0 1rem;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+            /* Include padding and borders in width */
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        #delete-account-button {
+            background: var(--error-color);
+            margin-right: 1rem;
+        }
+
+        #delete-account-button:hover {
+            background: #dc2626;
+        }
+
+        .logout-button {
+            background: var(--secondary-color);
+        }
+
+        .logout-button:hover {
+            background: #475569;
+        }
+
+        .logout-button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            margin: 10vh auto;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+        }
+
+        .message-container {
+            display: none;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: var(--success-color);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--error-color);
+        }
+
+        .password-hint {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .welcome {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-box {
+                margin: 1rem;
+                padding: 0;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .welcome h1 {
+                font-size: 2rem;
+            }
+
+            #profileImage {
+                width: 90px;
+                height: 90px;
+            }
+        }
+    </style>
 </head>
-<style>
-    body::-webkit-scrollbar {
-        display: none;
-    }
-
-
-    .message-success {
-        color: green;
-        font-size: 1rem;
-    }
-
-    .message-error {
-        color: red;
-        font-size: 1rem;
-    }
-
-    .password-hint {
-        font-size: 0.9rem;
-        margin-top: 5px;
-        display: block;
-    }
-</style>
 
 <body>
     <div class="dashboard-box">
-
         <div class="dashboard-content">
             <!-- Welcome Section -->
-
             <section id="home" class="section welcome">
-                <h1>Welcome, {{ username }}!</h1>
+                <h1>Welcome, {{ username }} 😊</h1>
                 <div class="profile-image-container">
                     <img src="{{ url_for('static', filename='uploads/' + (profile_picture if profile_picture else 'default.jpg')) }}"
                         alt="User Profile Picture" id="profileImage">
@@ -52,13 +308,12 @@
 
             <!-- Profile Section -->
             <section id="profile" class="section profile">
-                <h2>Your Profile</h2>
+                <h2>Your Profile 📄</h2>
                 <p>Name: {{ username }}</p>
                 <p>Email: {{ user_email }}</p>
                 {% if looking_for %}
-                <p>Looking for: {{ looking_for }}</p>
+                <p>Looking for: {{ looking_for }} 🔍</p>
                 {% endif %}
-
 
                 <form id="edit-username-form" class="settings-form" onsubmit="return updateUsername(event)">
                     <h3>Edit Username:</h3>
@@ -67,18 +322,44 @@
                 </form>
             </section>
 
+            <section id="properties" class="section properties">
+                <h2>Your Properties 🏡</h2>
+                {% if properties %}
+                <p>You have added <strong>{{ properties|length }}</strong> property(ies). 🏘️</p>
+                <div class="property-list">
+                    {% for property in properties %}
+                    <div class="property-card">
+                        <div class="property-info">
+                            <h3 class="property-name">{{ property.name }}</h3>
+                            <p class="property-location"><i class="bi bi-geo-alt"></i> {{ property.location }}</p>
+                            <p class="property-price">Price: ₹ {{ property.price }}</p>
+                        </div>
+                        {% if session.get('role') == 'Seller' and session.get('email') == property['seller_email'] %}
+                        <button onclick="deleteProperty('{{ property._id }}')" class="delete-btn">Delete
+                            Property</button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>You have not added any properties yet. 😕</p>
+                {% endif %}
+            </section>
+
+
+
             <section id="settings" class="section settings">
-                <h2>Settings</h2>
+                <h2>Settings ⚙️</h2>
                 <div id="message-container" class="message-container"></div>
 
                 <form id="update-email-form" class="settings-form">
-                    <h3>Update Email</h3>
+                    <h3>Update Email 📧</h3>
                     <input type="email" id="newEmail" placeholder="New Email" required>
                     <button type="submit">Update Email</button>
                 </form>
 
                 <form id="update-password-form" class="settings-form">
-                    <h3>Update Password</h3>
+                    <h3>Update Password 🔑</h3>
                     <input type="password" id="newPassword" placeholder="New Password" required>
                     <small id="new-password-message" class="password-hint">
                         Password must be at least 6 characters long, include at least one uppercase letter, and one
@@ -107,108 +388,115 @@
     </div>
 
     <script>
+
+        function deleteProperty(propertyId) {
+            console.log(`Deleting property with ID: ${propertyId}`);
+
+            fetch(`/delete-property/${propertyId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Response:', data);
+                    if (data.message) {
+                        showMessage(data.message, false);  // Show success message
+                        setTimeout(() => {
+                            window.location.href = '/';  // Redirect to the main page of the website
+                        }, 2000);  // Wait for 2 seconds before reloading
+                    }
+
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showMessage("An error occurred. Please try again.", true);
+                });
+        }
         function showMessage(type, message) {
             const messageContainer = document.getElementById('message-container');
-
-            // Determine the icon and apply the style based on message type
-            let iconHTML = '';
-            if (type === 'success') {
-                messageContainer.classList.add('message-success');
-                iconHTML = '<span style="margin-right: 10px;">&#x2714;</span>'; // Checkmark icon for success
-            } else if (type === 'error') {
-                messageContainer.classList.add('message-error');
-                iconHTML = '<span style="margin-right: 10px;">&#x26A0;</span>'; // Warning icon for error
-            }
-
-            // Set message content with icon and display the container
             messageContainer.innerHTML = message;
             messageContainer.style.display = 'block';
+            messageContainer.className = 'message-container message-' + type;
             messageContainer.style.opacity = '1';
-            messageContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             messageContainer.style.transform = 'translateY(0)';
 
-            // Hide the message after 3 seconds with fade-out effect
             setTimeout(() => {
                 messageContainer.style.opacity = '0';
                 messageContainer.style.transform = 'translateY(-10px)';
                 setTimeout(() => {
                     messageContainer.style.display = 'none';
-                }, 300); // Wait for fade-out transition to complete before hiding
+                }, 300);
             }, 3000);
         }
 
-
-
         // Update Username
         document.getElementById('edit-username-form').addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
-
+            event.preventDefault();
             const newUsername = document.getElementById('newUsername').value;
 
             try {
                 const response = await fetch('/update-username', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json' // Ensure JSON content type
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ username: newUsername })
                 });
 
                 const result = await response.json();
                 if (response.ok) {
-                    showMessage('success', result.message); // Pass type as 'success'
+                    showMessage('success', result.message);
                     setTimeout(() => {
-                        window.location.reload(); // Reload the page
-                    }, 1000); // Optional: delay for 1 second before reloading
+                        window.location.reload();
+                    }, 1000);
                 } else {
-                    showMessage('error', result.message); // Pass type as 'error'
+                    showMessage('error', result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('error', "An error occurred while updating username."); // Show error message
+                showMessage('error', "An error occurred while updating username.");
             }
-
         });
+
         // Update Email
         document.getElementById('update-email-form').addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
-
+            event.preventDefault();
             const newEmail = document.getElementById('newEmail').value;
 
             try {
                 const response = await fetch('/update-email', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json' // Ensure JSON content type
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ email: newEmail })
                 });
 
                 const result = await response.json();
                 if (response.ok) {
-                    showMessage('success', result.message); // Pass type as 'success'
+                    showMessage('success', result.message);
                     setTimeout(() => {
-                        window.location.reload(); // Reload the page
-                    }, 1000); // Optional: delay for 1 second before reloading
+                        window.location.reload();
+                    }, 1000);
                 } else {
-                    showMessage('error', result.message); // Pass type as 'error'
+                    showMessage('error', result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('error', "An error occurred while updating email."); // Show error message
+                showMessage('error', "An error occurred while updating email.");
             }
-
         });
 
+        // Update Password
         document.getElementById('update-password-form').addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
-
+            event.preventDefault();
             const newPassword = document.getElementById('newPassword').value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
 
-            // Check if passwords match
             if (newPassword !== confirmNewPassword) {
-                showMessage("Passwords do not match!", false); // Show error message
+                showMessage('error', "Passwords do not match!");
                 return;
             }
 
@@ -216,33 +504,24 @@
                 const response = await fetch('/update-password', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json', // Set content type to JSON
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ password: newPassword }),  // Send password in JSON
+                    body: JSON.stringify({ password: newPassword }),
                 });
 
                 const result = await response.json();
-                showMessage(result.message, response.ok); // Show success or error message
+                showMessage(response.ok ? 'success' : 'error', result.message);
 
                 if (response.ok) {
-                    // Redirect to login or another page after success
                     setTimeout(() => window.location.href = '/login.html', 1500);
                 }
-
             } catch (error) {
                 console.error('Error:', error);
-                showMessage("An error occurred while updating the password.", false);
+                showMessage('error', "An error occurred while updating the password.");
             }
         });
 
-        function showMessage(message, isSuccess) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.textContent = message;
-            messageContainer.style.display = 'block';
-            messageContainer.style.color = isSuccess ? 'green' : 'red';  // Green for success, red for error
-        }
-
-        // Real-time validation for new password and confirm password fields
+        // Password validation
         document.getElementById('newPassword').addEventListener('input', function () {
             const newPassword = this.value;
             const passwordMessage = document.getElementById('new-password-message');
@@ -265,11 +544,9 @@
                 valid = false;
             }
 
-            // Update message content and style
             passwordMessage.textContent = valid ? 'Password looks good!' : message;
-            passwordMessage.style.color = valid ? 'green' : 'red';
+            passwordMessage.style.color = valid ? 'var(--success-color)' : 'var(--error-color)';
 
-            // Recheck confirm password validity when the new password changes
             checkPasswordMatch();
         });
 
@@ -281,35 +558,29 @@
             const confirmPasswordMessage = document.getElementById('confirm-new-password-message');
 
             if (!confirmNewPassword) {
-                // Clear the message when confirmNewPassword is empty
                 confirmPasswordMessage.textContent = '';
                 return;
             }
 
             if (newPassword !== confirmNewPassword) {
                 confirmPasswordMessage.textContent = 'Passwords do not match.';
-                confirmPasswordMessage.style.color = 'red';
+                confirmPasswordMessage.style.color = 'var(--error-color)';
             } else {
                 confirmPasswordMessage.textContent = 'Passwords match!';
-                confirmPasswordMessage.style.color = 'green';
+                confirmPasswordMessage.style.color = 'var(--success-color)';
             }
         }
 
-        // Delete Account
-
-        // Get modal elements
+        // Delete Account Modal
         const deleteAccountModal = document.getElementById('delete-account-modal');
         const closeButton = document.querySelector('.close-button');
         const cancelDeleteButton = document.getElementById('cancel-delete-button');
         const confirmDeleteButton = document.getElementById('confirm-delete-button');
 
-        // Delete Account
         document.getElementById('delete-account-button').addEventListener('click', function () {
-            // Show the modal
             deleteAccountModal.style.display = 'block';
         });
 
-        // Close the modal
         closeButton.onclick = function () {
             deleteAccountModal.style.display = 'none';
         }
@@ -318,7 +589,6 @@
             deleteAccountModal.style.display = 'none';
         }
 
-        // Confirm deletion
         confirmDeleteButton.addEventListener('click', async function () {
             try {
                 const response = await fetch('/delete-account', {
@@ -327,31 +597,25 @@
 
                 const result = await response.json();
                 if (response.ok) {
-                    showMessage('success', result.message); // Pass type as 'success'
-                    window.location.href = '/login.html'; // Redirect to login after deletion
+                    showMessage('success', result.message);
+                    window.location.href = '/login.html';
                 } else {
-                    showMessage('error', result.message); // Pass type as 'error'
+                    showMessage('error', result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('error', "An error occurred while deleting account."); // Show error message
+                showMessage('error', "An error occurred while deleting account.");
             } finally {
-                deleteAccountModal.style.display = 'none'; // Hide the modal
+                deleteAccountModal.style.display = 'none';
             }
         });
 
-
-        // Close the modal when clicking outside of it
         window.onclick = function (event) {
             if (event.target === deleteAccountModal) {
                 deleteAccountModal.style.display = 'none';
             }
         }
-
-
     </script>
-
-
 </body>
 
 </html>

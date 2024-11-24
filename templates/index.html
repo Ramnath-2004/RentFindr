@@ -33,8 +33,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
 
-
-
 </head>
 
 <body>
@@ -132,8 +130,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color:white
-            display: flex;
+            background-color: white display: flex;
             justify-content: center;
             align-items: center;
         }
@@ -216,51 +213,51 @@
 
         };
 
-         function updateAddresss() {
-        const districtSelect = document.getElementById('District');
-        const addressSelect = document.getElementById('Address');
+        function updateAddresss() {
+            const districtSelect = document.getElementById('District');
+            const addressSelect = document.getElementById('Address');
 
-        // Clear previous options
-        addressSelect.innerHTML = '<option value="">--Select Address--</option>';
+            // Clear previous options
+            addressSelect.innerHTML = '<option value="">--Select Address--</option>';
 
-        // Get the selected district
-        const selectedDistrict = districtSelect.value;
+            // Get the selected district
+            const selectedDistrict = districtSelect.value;
 
-        // Populate the address dropdown based on the selected district
-        if (selectedDistrict in Addresss) {
-            Addresss[selectedDistrict].forEach(function (address) {
-                const option = document.createElement('option');
-                option.value = address;
-                option.textContent = address;
-                addressSelect.appendChild(option);
-            });
+            // Populate the address dropdown based on the selected district
+            if (selectedDistrict in Addresss) {
+                Addresss[selectedDistrict].forEach(function (address) {
+                    const option = document.createElement('option');
+                    option.value = address;
+                    option.textContent = address;
+                    addressSelect.appendChild(option);
+                });
+            }
         }
-    }
 
-    document.getElementById('price-form').onsubmit = function (event) {
-        event.preventDefault();
+        document.getElementById('price-form').onsubmit = function (event) {
+            event.preventDefault();
 
-        const formData = new FormData(this);
+            const formData = new FormData(this);
 
-        fetch('/predict', {
-            method: 'POST',
-            body: formData,
-        })
-            .then(response => response.text())
-            .then(priceText => {
-                document.getElementById('predicted-price').innerHTML = priceText;
-                document.getElementById('popup').style.display = 'flex';
+            fetch('/predict', {
+                method: 'POST',
+                body: formData,
             })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('predicted-price').innerText = 'An error occurred while predicting the price.';
-                document.getElementById('popup').style.display = 'flex';
-            });
-    };
+                .then(response => response.text())
+                .then(priceText => {
+                    document.getElementById('predicted-price').innerHTML = priceText;
+                    document.getElementById('popup').style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('predicted-price').innerText = 'An error occurred while predicting the price.';
+                    document.getElementById('popup').style.display = 'flex';
+                });
+        };
 
-    function closeModal() {
-        document.getElementById('popup').style.display = 'none';
-    }
+        function closeModal() {
+            document.getElementById('popup').style.display = 'none';
+        }
 
     </script>
     <!-- ******* Header/Navbar ******* -->
@@ -279,7 +276,7 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarDefault">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/">Home</a>
+                        <a class="nav-link active " href="/">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/about.html">About</a>
@@ -300,8 +297,7 @@
                             <li><span class="dropdown-item">Welcome, {{ username }}!</span></li>
                             {% if looking_for %}
                             <li><span class="dropdown-item">Looking For: {{ looking_for }}</span></li>
-                            {% endif %}
-                            <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                            {% endif %} <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
                             <!-- Link to the dashboard -->
                             <li><a class="dropdown-item" href="/logout">Logout</a></li>
                         </ul>
@@ -324,21 +320,6 @@
             </button>
         </div>
     </nav>
-
-    <style>
-        .property-grid-white a {
-            color: white !important;
-            /* Set link color to white */
-            text-decoration: none;
-            /* Optional: Remove underline */
-        }
-
-        .property-grid-white a:hover {
-            color: lightgray !important;
-            /* Optional: Change color on hover */
-
-        }
-    </style>
 
 
     <!-- ******* Intro div ******* -->

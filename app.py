@@ -249,29 +249,55 @@ def contact():
     looking_for = session.get('looking_for')  # Get the 'Looking For' data from the session
     return render_template('contact.html', user_logged_in=user_logged_in, username=username, looking_for=looking_for)
 
+
 @app.route('/dashboard')
 def dashboard():
-    if 'email' not in session:  # Check for unique email in the session
-        return redirect('/login')  # Redirect to login if user is not logged in
+    # Check if the user is logged in
+    if 'email' not in session:
+        return redirect(url_for('login', next=request.path))
 
-    email = session.get('email')  # Retrieve the logged-in user's email
-    looking_for = session.get('looking_for')  # Retrieve 'looking_for' from session
+    email = session.get('email')  # Get the logged-in user's email
+    role = session.get('role', 'Buyer')  # Get user role, default to 'Buyer'
 
-    # Retrieve user details from the database using email
+    # Fetch the user details
     user = users_collection.find_one({"email": email})
-
-    if user is None:
+    if not user:
         return jsonify({"message": "User not found"}), 404
 
-    # Pass user details to the template
+    # Fetch properties associated with the logged-in seller
+    properties = []
+    if role == 'Seller':
+        property_records = properties_collection.find({"seller_email": email})
+        properties = [
+            {
+                "_id": str(property["_id"]),
+                "name": property["name"],
+                "location": property["location"],
+                "price": property["price"],
+                "sale_status": property["sale_status"],
+                "area": property["area"],
+                "beds": property["beds"],
+                "baths": property["baths"],
+                "yards": property.get("yards", 0),
+                "images": [
+                    url_for('static', filename=f'uploads/{img}')
+                    for img in property.get("images", [])
+                ],
+                "seller_email": property["seller_email"]
+            }
+            for property in property_records
+        ]
+
+    # Pass user and property details to the template
     return render_template(
         'dashboard.html',
-        username=user.get('fullName'),  # Use the full name from the database
+        username=user.get('fullName'),
         user_email=user.get('email'),
-        looking_for=looking_for,
-        profile_picture=user.get('profilePicture')  # Pass the profile picture filename
+        looking_for=session.get('looking_for'),
+        profile_picture=user.get('profilePicture'),
+        properties=properties,
+        role=role
     )
-
 
 
 
@@ -407,8 +433,8 @@ def add_property():
         beds = request.form.get('beds')
         baths = request.form.get('baths')
         yards = request.form.get('yards')
-        
-         # Collect Google Maps embed link
+        address = request.form.get('address')
+        bookingAmount = request.form.get('bookingAmount')
         google_map_link = request.form.get('googleMapLink')
 
         # Validate the Google Maps embed link
@@ -495,6 +521,112 @@ def add_property():
         properties_collection = db["properties"]
         properties_collection.insert_one(new_property)
         
+        # Send a confirmation email to the agent
+        # Send a confirmation email to the agent 
+    if agent_email:
+        try:
+            msg = Message("New Property Added",
+                        sender="rentfindr@gmail.com",
+                        recipients=[agent_email])
+            msg.html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        background-color: #f9f9f9;
+                        margin: 0;
+                        padding: 0;
+                    }}
+                    .email-container {{
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background: #ffffff;
+                        padding: 20px;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                    }}
+                    .header {{
+                        text-align: center;
+                        background: #e63946;
+                        color: white;
+                        padding: 15px 0;
+                        font-size: 22px;
+                        font-weight: bold;
+                    }}
+                    .logo {{
+                        display: block;
+                        margin: 0 auto 10px;
+                        max-width: 150px;
+                    }}
+                    .content {{
+                        padding: 20px;
+                        color: #333;
+                    }}
+                    .content p {{
+                        margin: 0 0 10px;
+                    }}
+                    .footer {{
+                        text-align: center;
+                        font-size: 12px;
+                        color: #777;
+                        margin-top: 20px;
+                    }}
+                    .button {{
+                        display: inline-block;
+                        background: #e63946;
+                        color: #fff;
+                        padding: 10px 20px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin-top: 10px;
+                        font-weight: bold;
+                    }}
+                    .property-details {{
+                        margin-top: 20px;
+                        padding: 10px;
+                        background: #f4f4f4;
+                        border-radius: 5px;
+                    }}
+                    .property-details p {{
+                        margin: 5px 0;
+                        font-size: 14px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <img src="http://rentfindr.onrender.com/static/assets/img/logo.png" alt="RentFindr Logo" class="logo">
+                    <div class="header">
+                        New Property Successfully Added 🎉
+                    </div>
+                    <div class="content">
+                        <p>Dear {agent_name}, 👋</p>
+                        <p>We are excited to inform you that a new property has been successfully added to our website! ✨</p>
+                        <div class="property-details">
+                            <p><strong>🏠 Property Name:</strong> {property_name}</p>
+                            <p><strong>📍 Location:</strong> {location}</p>
+                            <p><strong>💰 Price:</strong> {price}</p>
+                            <p><strong>📏 Area:</strong> {area} sqft</p>
+                        </div>
+                        <p>Please visit the property section to view, and Dashboard section to delete this listing. 📝</p>
+                        <a href="https://rentfindr.onrender.com/dashboard" class="button">Manage Property</a>
+                        <p>If you have any questions or need assistance, feel free to reach out to our support team. 💬</p>
+                    </div>
+                    <div class="footer">
+                        <p>Best regards,<br>The RentFindr Team 🚀</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+
+            mail.send(msg)
+
+        except Exception as e:
+                return jsonify({"error": f"Error sending email to agent: {str(e)}"}), 500
         # Redirect after successful insertion
         return redirect(url_for('property_grid'))
 
@@ -532,6 +664,7 @@ def add_property():
 
 @app.route('/login.html')
 def login():
+    
     return render_template('login.html')
 
 @app.route('/signup.html')
@@ -659,6 +792,56 @@ def send_email():
         print('Error sending email:', e)
         return jsonify({'message': 'Error sending email'}), 500
  
+# def lookup_agent_email_by_property(property_id):
+#     property_doc = db["properties"].find_one({"_id": property_id})
+#     if property_doc:
+#         print("Property data:", property_doc)  # Log the full property data
+#         if "agent" in property_doc and "email" in property_doc["agent"]:
+#             return property_doc["agent"]["email"]
+#     return None
+
+
+ 
+# @app.route('/send-message', methods=['POST'])
+# def send_message():
+#     try:
+#         # Get JSON data from the request
+#         data = request.get_json()
+
+#         # Extract form fields
+#         property_id = data.get('property_id')
+#         user_name = data.get('name')
+#         user_email = data.get('email')
+#         subject = data.get('subject')
+#         message_content = data.get('message')
+
+#         # Validate fields
+#         if not all([property_id, user_name, user_email, subject, message_content]):
+#             return jsonify({"error": "Missing required fields"}), 400
+
+#         # Look up the agent's email using the property_id
+#         agent_email = lookup_agent_email_by_property(property_id)
+#         if not agent_email:
+#             return jsonify({"error": "Agent email not found for this property"}), 404
+
+#         # Compose the email
+#         msg = Message(
+#             subject=f"New Message from {user_name}: {subject}",
+#             sender=(user_name, user_email),
+#             recipients=[agent_email]
+#         )
+#         msg.body = f"Message from {user_name} ({user_email}):\n\n{message_content}"
+
+#         # Send the email
+#         mail.send(msg)
+
+#         return jsonify({"message": "Your message has been sent to the agent!"}), 200
+
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({"error": "An error occurred while sending the email"}), 500
+
+
  
 @app.route('/signup', methods=['POST'])
 def signup_user():
