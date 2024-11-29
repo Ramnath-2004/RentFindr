@@ -8,7 +8,6 @@ Rent Finder is a user-friendly web application designed to simplify property ren
 - **AI-Powered Price Predictions** for selected districts/areas.
 - **Interactive Dashboards** for managing properties and user data.
 - **Google Maps Integration** for location insights.
-- **Recently Viewed Properties** section for users.
 - **Profile Pictures** displayed on user dashboards.
 - **Property Amenities List** displayed on property details page.
 
